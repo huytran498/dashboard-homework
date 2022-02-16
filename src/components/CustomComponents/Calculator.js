@@ -21,6 +21,7 @@ const options = [
 export const UseDataViewComponent = (filter) => {
     const [selectedOption, setSelectedOption] = useState(null);
     
+    //Check filter object exists & have data
     const filterAttribute = filter && Object.keys(filter).length > 0 ? filter.filter.relativeDateFilter : {};
     if(filterAttribute){
         filters =[newRelativeDateFilter(filterAttribute.dataSet.identifier, filterAttribute.granularity, filterAttribute.from, filterAttribute.to)]
@@ -29,6 +30,7 @@ export const UseDataViewComponent = (filter) => {
 
     let arr = [];
     let calResult = 0; 
+    //Filter calculation value from dataset
     if(!error && result && result.dataView && result.dataView.data.length > 0){
         for( let pRevenue of result.dataView.data){
             arr.push(...pRevenue)
