@@ -1,0 +1,18 @@
+.filterSection {
+    width: '100%';
+    border-style: solid;
+}
+
+.dataSection {
+    display: flex;
+    margin-top: 1%;
+    min-height: 40vh;
+    .chartSection {
+        width: 65%;
+    }
+    .calculationSection{
+        margin-left: 2%;
+        border-style: solid;
+        width: 35%;
+    }
+}
