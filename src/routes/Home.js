@@ -5,7 +5,7 @@ import Page from "../components/Page";
 import { modifyMeasure } from "@gooddata/sdk-model";
 import { LineChart } from "@gooddata/sdk-ui-charts";
 import { DateFilter, DateFilterHelpers } from "@gooddata/sdk-ui-filters";
-import { UseDataViewComponent } from "../components/CustomComponents/Calculator";
+import { Calculator } from "../components/CustomComponents/Calculator";
 
 const productRevenue = modifyMeasure(Md.Revenue, (cr) => cr.format("#,##0").title("Product Revenue"));
 const measures = [productRevenue];
@@ -285,8 +285,8 @@ const Home = () => {
     
     return (
         <Page>
-            <div className={styles.titleSection}>My Dashboard {displayDashboardTitle(state.selectedFilterOption.type)}</div>
-            <div className={styles.filterSection}>
+            <div id="title" className={styles.titleSection}>My Dashboard {displayDashboardTitle(state.selectedFilterOption.type)}</div>
+            <div id="filterSection" className={styles.filterSection}>
                 <DateFilter
                     excludeCurrentPeriod={state.excludeCurrentPeriod}
                     selectedFilterOption={state.selectedFilterOption}
@@ -306,7 +306,7 @@ const Home = () => {
                     />
                 </div>
                 <div className={styles.calculationSection}> 
-                    <UseDataViewComponent filter = {dateFilter ? dateFilter : {}}/>
+                    <Calculator filter = {dateFilter ? dateFilter : {}}/>
                 </div>
             </div>
         </Page>

@@ -17,15 +17,17 @@ const options = [
     { value: 'min', label: 'Min Revenue' },
 ];
 
-export const UseDataViewComponent = (filter) => {
+export const Calculator = (filter) => {
     const [selectedOption, setSelectedOption] = useState({ value: 'max', label: 'Max Revenue' });
     
     //Check filter object exists & have data
     const filterAttribute = filter && Object.keys(filter).length > 0 ? filter.filter.relativeDateFilter : {};
     if(filterAttribute){
-        filters =[newRelativeDateFilter(filterAttribute.dataSet.identifier, filterAttribute.granularity, filterAttribute.from, filterAttribute.to)]
+        filters =[newRelativeDateFilter(filterAttribute.dataSet ? filterAttribute.dataSet.identifier : "", filterAttribute.granularity, filterAttribute.from, filterAttribute.to)]
     }
-    const { result, error, status } = useExecutionDataView({ execution: { seriesBy, slicesBy, sortBy, filters} });
+    const { result, error, status } = useExecutionDataView({ 
+        execution: { seriesBy, slicesBy, sortBy, filters} 
+    });
 
     let calResult = 0; 
     //Filter calculation value from dataset
