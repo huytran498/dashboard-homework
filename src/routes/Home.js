@@ -7,9 +7,8 @@ import { LineChart } from "@gooddata/sdk-ui-charts";
 import { DateFilter, DateFilterHelpers } from "@gooddata/sdk-ui-filters";
 import { UseDataViewComponent } from "../components/CustomComponents/Calculator";
 
-const clothingRevenue = modifyMeasure(Md.RevenueClothing, (cr) => cr.format("#,##0").title("Clothing Revenue"));
-const electronicRevenue = modifyMeasure(Md.RevenueElectronic, (er) => er.format("#,##0").title("Electronic Revenue"));
-const measures = [clothingRevenue, electronicRevenue];
+const productRevenue = modifyMeasure(Md.Revenue, (cr) => cr.format("#,##0").title("Product Revenue"));
+const measures = [productRevenue];
 
 const dateFrom = new Date();
 dateFrom.setMonth(dateFrom.getMonth() - 1);
@@ -72,7 +71,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "LAST_7_DAYS",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "Last 7 days",
             },
 
             {
@@ -82,7 +81,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "LAST_30_DAYS",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "Last 30 days",
             },
 
             {
@@ -92,7 +91,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "LAST_90_DAYS",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "Last 90 days",
             },
         ],
 
@@ -104,7 +103,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "THIS_MONTH",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "This month",
             },
 
             {
@@ -114,7 +113,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "LAST_MONTH",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "Last month",
             },
 
             {
@@ -124,7 +123,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "LAST_12_MONTHS",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "Last 12 months",
             },
         ],
 
@@ -136,7 +135,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "THIS_QUARTER",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "This quarter",
             },
 
             {
@@ -146,7 +145,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "LAST_QUARTER",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "Last quarter",
             },
 
             {
@@ -156,7 +155,7 @@ const defaultDateFilterOptions = {
                 localIdentifier: "LAST_4_QUARTERS",
                 type: "relativePreset",
                 visible: true,
-                name: "",
+                name: "Last 4 quarters",
             },
         ],
 
@@ -213,7 +212,6 @@ const defaultDateFilterOptions = {
 };
 
 const Home = () => {
-
     const [state, setState] = useState({
         selectedFilterOption: defaultDateFilterOptions.allTime,
         excludeCurrentPeriod: false,
@@ -231,9 +229,63 @@ const Home = () => {
         Md.DateDatasets.Date.ref,
         state.excludeCurrentPeriod,
     );
+
+    const displayDashboardTitle = (type) => {
+        let dashboardTitle = "";
+        switch(type) {
+            case ("allTime"):
+                dashboardTitle = "All time";
+                break;
+            case ("absoluteForm"):
+                dashboardTitle = "From " + state.selectedFilterOption.from + " to " +  state.selectedFilterOption.to;
+                break;
+            case ("relativeForm"):
+                dashboardTitle = convertRelativeFormType();
+                break;
+            case ("absolutePreset"):
+                dashboardTitle = state.selectedFilterOption.name;
+                break;    
+            case ("relativePreset"):
+                dashboardTitle = state.selectedFilterOption.name;
+                break;
+            default:
+                break;
+        }
+        return dashboardTitle;
+    }
+
+    const convertRelativeFormType = () => {
+        const timesplit = state.selectedFilterOption.granularity.split('.')[2];
+        const convertPositive = Math.abs(state.selectedFilterOption.from);
+        const gDCUnit = timesplit === "date" ? "day" : timesplit;
+        let granularityNumber = "";
+        if (state.selectedFilterOption.from === state.selectedFilterOption.to ) {
+            if(state.selectedFilterOption.from === 0) {
+                return "Today";
+            } else if (state.selectedFilterOption.from === 1) {
+                return "Tomorrow";
+            } else if (state.selectedFilterOption.from === -1) {
+                return "Yesterday";
+            } else if (state.selectedFilterOption.from < -1) {
+                return state.selectedFilterOption.from + " " + timesplit + " ago";
+            } else {
+                return state.selectedFilterOption.from + " " + timesplit + " ahead";
+            }
+        }else if (state.selectedFilterOption.from !== state.selectedFilterOption.to) {
+            if(state.selectedFilterOption.from === 0) {
+                return "Next " + (state.selectedFilterOption.to + 1) + " " + gDCUnit + "s";
+            } else if (state.selectedFilterOption.to === 0) {
+                return "Last " + Math.abs(state.selectedFilterOption.from - 1) + " " + gDCUnit + "s";
+            } else {
+                granularityNumber = convertPositive > 1 ? convertPositive + " " + gDCUnit +"s" : convertPositive + " " + gDCUnit;
+                return "From " + granularityNumber + " ago to " + granularityNumber + " ahead";
+            }
+        }
+    }
     
     return (
         <Page>
+            <div className={styles.titleSection}>My Dashboard {displayDashboardTitle(state.selectedFilterOption.type)}</div>
             <div className={styles.filterSection}>
                 <DateFilter
                     excludeCurrentPeriod={state.excludeCurrentPeriod}

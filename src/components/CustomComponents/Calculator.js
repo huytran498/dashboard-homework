@@ -5,10 +5,9 @@ import { modifyMeasure, modifyAttribute, newRelativeDateFilter } from "@gooddata
 import Select from 'react-select';
 import styles from './Calculator.module.scss';
 
-const clothingRevenue = modifyMeasure(Md.RevenueClothing, (cr) => cr.format("#,##0").title("Clothing Revenue"));
-const electronicRevenue = modifyMeasure(Md.RevenueElectronic, (er) => er.format("#,##0").title("Electronic Revenue"));
+const productRevenue = modifyMeasure(Md.Revenue, (cr) => cr.format("#,##0").title("Product Revenue"));
 const monthDate = modifyAttribute(Md.DateDatasets.Date.Month.Short, (a) => a.alias("Month"));
-const seriesBy = [clothingRevenue, electronicRevenue];
+const seriesBy = [productRevenue];
 const slicesBy = [monthDate];
 const sortBy = [];
 let filters = [];
@@ -19,7 +18,7 @@ const options = [
 ];
 
 export const UseDataViewComponent = (filter) => {
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOption, setSelectedOption] = useState({ value: 'max', label: 'Max Revenue' });
     
     //Check filter object exists & have data
     const filterAttribute = filter && Object.keys(filter).length > 0 ? filter.filter.relativeDateFilter : {};
@@ -28,24 +27,16 @@ export const UseDataViewComponent = (filter) => {
     }
     const { result, error, status } = useExecutionDataView({ execution: { seriesBy, slicesBy, sortBy, filters} });
 
-    let arr = [];
     let calResult = 0; 
     //Filter calculation value from dataset
-    if(!error && result && result.dataView && result.dataView.data.length > 0){
-        for( let pRevenue of result.dataView.data){
-            arr.push(...pRevenue)
-        }
-        let intArr = arr.map(x => parseInt(x));
-        if(selectedOption && selectedOption.value == "max"){
-            calResult = Math.max(...intArr)
-        } else {
-            calResult = Math.min(...intArr)
-        }
+    if(result){
+        const intArr = result.dataView.data.flat().map(value => Math.round(value));
+        calResult = Math[selectedOption.value](...intArr);
     }
     
     return (
         <div className={styles.calculatorSection}>
-            {selectedOption && !error ?
+            {result ?
                 <div className={styles.resultSection}>
                     ${ selectedOption.value ? calResult : 0}
                 </div>
